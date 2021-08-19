@@ -498,14 +498,15 @@ elif [[ "${BUILD_ENVIRONMENT}" == *libtorch* ]]; then
   # TODO: run some C++ tests
   echo "no-op at the moment"
 elif [[ "${BUILD_ENVIRONMENT}" == *-test1 || "${JOB_BASE_NAME}" == *-test1 || "${SHARD_NUMBER}" == 1 ]]; then
-  if [[ "${BUILD_ENVIRONMENT}" == *linux-xenial-cuda11.1*-test1* ]]; then
-    test_torch_deploy
-  fi
   test_without_numpy
   install_torchvision
   test_python_shard1
   test_aten
 elif [[ "${BUILD_ENVIRONMENT}" == *-test2 || "${JOB_BASE_NAME}" == *-test2 || "${SHARD_NUMBER}" == 2 ]]; then
+  # test_libtorch (test_api) includes IMethodTest that can benefit from sharing the same configuration as test_deploy.
+  if [[ "${BUILD_ENVIRONMENT}" == *linux-xenial-cuda11.1*-test2* ]]; then
+    test_torch_deploy
+  fi
   install_torchvision
   test_python_shard2
   test_libtorch
