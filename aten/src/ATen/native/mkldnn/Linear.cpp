@@ -51,6 +51,7 @@ Tensor mkldnn_linear(
       self.dim() != 0,
       "mkldnn_linear: input needs to has dim at least 1, input dim ",
       self.dim());
+    
   TORCH_CHECK(self.is_mkldnn(),
       "mkldnn_linear: input needs to be mkldnn layout");
   if (self.scalar_type() == ScalarType::BFloat16) {
@@ -66,7 +67,11 @@ Tensor mkldnn_linear(
   // weight_t can be a mkldnn tensor or dense tensor.
   const Tensor weight = (weight_t.is_mkldnn() || weight_t.is_contiguous()) ? weight_t : weight_t.contiguous();
   const ideep::tensor w = itensor_from_tensor(weight);
-
+  
+   TORCH_CHECK(
+      x.sizes()[1] == w.sizes()[0], "mat1 and mat2 shapes cannot be multiplied (",
+      x.sizes()[0], "x", x.sizes()[1], " and ", w.sizes()[0], "x", w.sizes()[1], ")");
+    
   ideep::tensor y;
   if (bias.defined()) {
     const ideep::tensor b = itensor_from_tensor(bias);
